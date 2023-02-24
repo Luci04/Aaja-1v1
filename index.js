@@ -8,8 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 //Additional Config
-const roomSize = 2;
 dotenv.config();
+const roomSize = 3;
 const PORT = process.env.PORT;
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +18,7 @@ const io = new Server(server, {
         origin: "*"
     }
 });
+
 
 app.use(cors());
 
@@ -35,38 +36,25 @@ app.get('/create_room', (req, res) => {
 let room = []
 let userinroom = []
 
-io.on('connection', async (socket) => {
+io.on('connection', (socket) => {
+
     console.log('a user connected', socket.id);
+    const numClients = socket.client.conn.server.clientsCount;
+    console.log('num clients connected', numClients);
 
-    console.log("A new User Joined")
-
-    socket.on('joined_room', roomId => {
-        socket.join(roomId);
-    });
-
-    socket.on("join_room", (anotherSocketId) => {
-        const clientsInRoom = io.sockets.adapter.rooms[anotherSocketId];
-        const numClients = clientsInRoom ? clientsInRoom.length : 0;
+    socket.on("join_room", () => {
 
         if (numClients === roomSize) {
-            socket.emit('full', 'Room is full.');
-        } else {
-            socket.join(anotherSocketId);
-            socket.emit('joined', (anotherSocketId) => {
-                socket.emit('')
-            });
+            console.log(numClients, "Full")
+            socket.disconnect(true);
         }
 
-        socket.join(anotherSocketId);
+        socket.emit("Joined_room", 123123);
     });
 
-    socket.on('alluser', (e) => {
-        console.log("pram", e)
-
-    })
 
     socket.on('disconnect', () => {
-
+        console.log('disconnected')
     })
 
 });
