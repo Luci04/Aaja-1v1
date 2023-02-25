@@ -12,19 +12,31 @@ export const socket = io(`http://localhost:5000/`);
 
 function App() {
 
-    const {user , setUser } = useContext(userinfo) 
-  
+  const { user, setUser } = useContext(userinfo)
+
 
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [userName, setUserName] = useState(null);
   const [roomId, setRoomId] = useState(null);
 
-  useEffect(() => {
+
+
+  useEffect(async () => {
     // setUser("jkasdhjkfh")
     // console.log("app user",user)
-    socket.on("connect", () => {
-      setIsConnected(true);
+    socket.on("connect", async () => {
+      console.log("socket connected");
+      socket.emit("join_room", 1)
     });
+
+    socket.on('Joined_room', (data) => {
+      console.log("Nebie")
+      console.log(data);
+    })
+
+    socket.on('full', (data) => {
+      console.log("Room is Full Fuck off MF!!")
+    })
 
     return () => {
       socket.off("connect");
@@ -52,10 +64,10 @@ function App() {
   );
 }
 
-const ContextwrapperApp = ()=>{
-  return(
+const ContextwrapperApp = () => {
+  return (
     <Context>
-         <App/>
+      <App />
     </Context>
   )
 }
