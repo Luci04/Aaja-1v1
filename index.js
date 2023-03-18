@@ -6,10 +6,12 @@ import http from 'http';
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from 'uuid';
 
+import { question_list } from './question.js'
+
 
 //Additional Config
 dotenv.config();
-const roomSize = 3;
+const roomSize = 2;
 const PORT = process.env.PORT;
 const app = express();
 const server = http.createServer(app);
@@ -33,28 +35,33 @@ app.get('/create_room', (req, res) => {
 })
 
 //Server Listen
-let room = []
-let userinroom = []
 
 io.on('connection', (socket) => {
 
-    console.log('a user connected', socket.id);
-    const numClients = socket.client.conn.server.clientsCount;
-    console.log('num clients connected', numClients);
+    console.log('A new User Connected', socket.id)
 
-    socket.on("join_room", () => {
+    socket.join('room1');
 
-        if (numClients === roomSize) {
-            console.log(numClients, "Full")
-            socket.disconnect(true);
+    let size = io.sockets.adapter.rooms.get('room1').size;
+
+    if (size == 3) {
+        const userSocket = io.sockets.sockets.get(socket.id);
+
+        // Remove the user from the room
+        if (userSocket) {
+            userSocket.leave('room1');
+            socket.emit('room_full');
         }
+    } else if (size == 1) {
+        socket.emit('waiting_for');
+    } else {
+        const rand = Math.floor(Math.random() * question_list.length);
 
-        socket.emit("Joined_room", 123123);
-    });
+        socket.to('room1').emit('start', { question: question_list[rand] });
+    }
 
-
-    socket.on('disconnect', () => {
-        console.log('disconnected')
+    socket.on('disconnect', (user) => {
+        console.log("Disconnted User")
     })
 
 });

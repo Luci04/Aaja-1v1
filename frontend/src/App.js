@@ -26,7 +26,7 @@ function App() {
     // console.log("app user",user)
     socket.on("connect", async () => {
       console.log("socket connected");
-      socket.emit("join_room", 1)
+      socket.emit("join_room", { name: "Avinash" })
     });
 
     socket.on('Joined_room', (data) => {
