@@ -1,28 +1,30 @@
-import React, { useContext, useEffect } from "react";
-import { useState } from "react";
+import React, { useContext, useEffect ,useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import uuid from "react-uuid";
+import { socket } from "../App";
 import vs from "../assets/vs.png";
-import { userinfo } from "../Context";
+import { getRandomdp } from "../Logic";
+import { userContext } from "../UserProvider";
 
-function HeroScreen({ setRoomId, socket }) {
+
+function HeroScreen( ) {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(userinfo);
+  const {setuser,user} = useContext(userContext)
   const [username, setusername] = useState("elon");
-
+  const pic = getRandomdp()
   const createRoom = (e) => {
-    const id = uuid();
-    setRoomId(id);
-    let user_details = {
-      roomid: id,
+    // const id = uuid();
+    let detail ={
+      id:socket.id,
       username: username,
-    };
-    console.log("d", user_details);
-    console.log("shrey");
-    setUser(user_details);
-    socket.emit("create_room", id);
-    navigate(`/${id}`);
-    console.log("user context", user);
+      pic: pic
+    }
+    socket.emit('join_room',detail)
+  localStorage.setItem("user",JSON.stringify(detail)) 
+    setuser(detail)
+    navigate(`/public-room`);
+
   };
 
   return (

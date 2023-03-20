@@ -34,34 +34,43 @@ app.get('/create_room', (req, res) => {
     res.send({ roomId: currId });
 })
 
+let users =[]
 //Server Listen
 
 io.on('connection', (socket) => {
 
     console.log('A new User Connected', socket.id)
-
-    socket.join('room1');
-
-    let size = io.sockets.adapter.rooms.get('room1').size;
-
-    if (size == 3) {
-        const userSocket = io.sockets.sockets.get(socket.id);
-
-        // Remove the user from the room
-        if (userSocket) {
-            userSocket.leave('room1');
-            socket.emit('room_full');
+    socket.on("join_room",(data)=>{
+        let userinfo ={
+            username: data.username,
+            id: socket.id,
+            pic:data.pic
         }
-    } else if (size == 1) {
-        socket.emit('waiting_for');
-    } else {
-        const rand = Math.floor(Math.random() * question_list.length);
+        users.push(userinfo)
+        socket.join("public_room")
+    })
 
-        socket.to('room1').emit('start', { question: question_list[rand] });
-    }
+    socket.on("connected_user",()=>{
+        io.emit('user' , users)
+    })
 
-    socket.on('disconnect', (user) => {
-        console.log("Disconnted User")
+    socket.on("send_message",({message, pic})=>{
+        console.log(message)
+            io.emit("message",{
+                text:message,
+                dp:pic
+            })
+    })
+
+    
+
+    socket.on('disconnect', (u) => {
+        console.log("Disconnted User",socket.id)
+        users = users.filter((user)=>{
+            return !(user.id === socket.id);
+        })
+        io.emit('user' , users) 
+        console.log("new user",users)
     })
 
 });

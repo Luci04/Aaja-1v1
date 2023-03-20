@@ -13,7 +13,7 @@ import UserTab from './UserTab'
 import ChatTab from './ChatTab'
 import clsx from 'clsx'
 
-const Home = () => {
+const Home = ({socket}) => {
 
   const resetEditorLayout = () => {
 
@@ -27,7 +27,7 @@ const Home = () => {
               <ReflexElement>
                 <ReflexContainer orientation="horizontal">
                   <ReflexElement className='pane-color'>
-                    <QuestionTab/>
+                    <QuestionTab   socket={socket}/>
                   </ReflexElement>
                 </ReflexContainer>
               </ReflexElement>

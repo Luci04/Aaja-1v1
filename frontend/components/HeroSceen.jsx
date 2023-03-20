@@ -3,11 +3,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import uuid from "react-uuid";
 import vs from "../assets/vs.png";
-import { userinfo } from "../Context";
+import { socket } from "../Context";
 
 function HeroScreen({ setRoomId, socket }) {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(userinfo);
+  const { user, setUser } = useContext(socket);
   const [username, setusername] = useState("elon");
 
   const createRoom = (e) => {
